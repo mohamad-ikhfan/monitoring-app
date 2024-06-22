@@ -33,7 +33,7 @@ class UserManagementResource extends Resource
                             ->label('NIK')
                             ->required()
                             ->integer()
-                            ->unique()
+                            ->unique(ignoreRecord: true)
                             ->afterStateUpdated(function (Forms\Set $set, $state): void {
                                 $set('password', bcrypt($state));
                             }),
@@ -42,7 +42,8 @@ class UserManagementResource extends Resource
                             ->required()
                             ->string(),
 
-                        Forms\Components\Hidden::make('password'),
+                        Forms\Components\Hidden::make('password')
+                            ->hiddenOn('edit'),
 
                         Forms\Components\Select::make('role')
                             ->options(['admin' => 'Admin', 'monitorig' => 'Monitoring', 'spk' => 'SPK', 'outsole' => 'Outsole', 'upper' => 'Upper', 'assembly' => 'Assembly'])
