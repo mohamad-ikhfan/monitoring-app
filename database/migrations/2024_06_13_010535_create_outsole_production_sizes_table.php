@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('outsole_production_sizes', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('production_outsole_id');
+            $table->foreignId('sizerun_id');
+            $table->dateTime('started_work_time')->nullable();
+            $table->dateTime('ended_work_time')->nullable();
+            $table->date('delivery_to_stock')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('outsole_production_sizes');
+    }
+};
