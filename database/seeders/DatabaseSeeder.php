@@ -22,6 +22,6 @@ class DatabaseSeeder extends Seeder
             'role' => 'dev',
         ]);
 
-        $this->call(PoItemSeeder::class);
+        // $this->call(PoItemSeeder::class);
     }
 }
