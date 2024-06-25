@@ -57,7 +57,9 @@ class UserManagementResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('profile'),
+                Tables\Columns\ImageColumn::make('avatar')
+                    ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name=' . preg_filter('/[^A-Z]/', '', $record->name) . '&color=FFFFFF&background=09090b')
+                    ->circular(),
                 Tables\Columns\TextColumn::make('nik')
                     ->label('NIK'),
                 Tables\Columns\TextColumn::make('name'),
