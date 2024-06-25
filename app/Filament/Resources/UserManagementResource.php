@@ -67,8 +67,10 @@ class UserManagementResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->hiddenLabel(),
+                Tables\Actions\DeleteAction::make()
+                    ->hiddenLabel(),
             ]);
     }
 

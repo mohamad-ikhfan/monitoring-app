@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PoItemResource extends Resource
@@ -23,7 +24,136 @@ class PoItemResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Section::make([
+                    Forms\Components\Fieldset::make('PO Items')
+                        ->schema([
+                            Forms\Components\TextInput::make('po_number')
+                                ->integer()
+                                ->unique(ignoreRecord: true)
+                                ->required(),
+                            Forms\Components\TextInput::make('model_name')
+                                ->string()
+                                ->autocapitalize()
+                                ->required(),
+                            Forms\Components\DatePicker::make('cgac')
+                                ->native(false)
+                                ->displayFormat('m/d Y')
+                                ->firstDayOfWeek(7)
+                                ->locale('en')
+                                ->closeOnDateSelection()
+                                ->required(),
+                            Forms\Components\TextInput::make('destination')
+                                ->string()
+                                ->required(),
+                            Forms\Components\TextInput::make('gender')
+                                ->string()
+                                ->autocapitalize()
+                                ->required(),
+                        ]),
+                ]),
+
+                Forms\Components\Section::make([
+                    Forms\Components\Fieldset::make('Sizeruns')
+                        ->schema([
+                            Forms\Components\TextInput::make('sizerun.size_3t')
+                                ->label('3T')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_4')
+                                ->label('4')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_4t')
+                                ->label('4T')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_5')
+                                ->label('5')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_5t')
+                                ->label('5T')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_6')
+                                ->label('6')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_6t')
+                                ->label('6T')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_7')
+                                ->label('7')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_7t')
+                                ->label('7T')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_8')
+                                ->label('8')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_8t')
+                                ->label('8T')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_9')
+                                ->label('9')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_9t')
+                                ->label('9T')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_10')
+                                ->label('10')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_10t')
+                                ->label('10T')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_11')
+                                ->label('11')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_11t')
+                                ->label('11T')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_12')
+                                ->label('12')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_12t')
+                                ->label('12T')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_13')
+                                ->label('13')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_13t')
+                                ->label('13T')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_14')
+                                ->label('14')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_14t')
+                                ->label('14T')
+                                ->minValue(0)
+                                ->numeric(),
+                            Forms\Components\TextInput::make('sizerun.size_15')
+                                ->label('15')
+                                ->minValue(0)
+                                ->numeric(),
+                        ])
+                        ->columns(8)
+                ])
             ]);
     }
 
@@ -157,8 +287,15 @@ class PoItemResource extends Resource
                 //
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
-            ]);
+                Tables\Actions\EditAction::make()
+                    ->hiddenLabel(),
+                Tables\Actions\DeleteAction::make()
+                    ->hiddenLabel()
+                    ->action(function (Model $record): void {
+                        $record->sizerun()->delete();
+                        $record->delete();
+                    }),
+            ], position: Tables\Enums\ActionsPosition::BeforeColumns);
     }
 
     public static function getRelations(): array

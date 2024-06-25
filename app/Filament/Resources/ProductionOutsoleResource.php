@@ -79,7 +79,7 @@ class ProductionOutsoleResource extends Resource
                                     ->live()
                                     ->disabledOn('edit'),
 
-                                Forms\Components\Grid::make(10)
+                                Forms\Components\Grid::make(8)
                                     ->schema([
                                         Forms\Components\TextInput::make('spk.size_3t')
                                             ->label('3T')
@@ -331,7 +331,7 @@ class ProductionOutsoleResource extends Resource
                                     ->numeric()
                                     ->hidden(fn ($state) => $state === null),
                             ])
-                            ->columns(10)
+                            ->columns(8)
                             ->hidden(fn ($state) => empty($state['select_release']))
                     ])
                     ->hiddenOn(['view', 'edit']),
@@ -490,7 +490,7 @@ class ProductionOutsoleResource extends Resource
                                             ->hidden(fn ($state) => $state === null),
                                     ])
                                     ->addable(false)
-                                    ->columns(10)
+                                    ->columns(8)
                             ])
                             ->columns(1)
                     ])
