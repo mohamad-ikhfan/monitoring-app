@@ -58,7 +58,16 @@ class UserManagementResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar')
-                    ->defaultImageUrl(fn ($record) => 'https://ui-avatars.com/api/?name=' . preg_filter('/[^A-Z]/', '', $record->name) . '&color=FFFFFF&background=09090b')
+                    ->defaultImageUrl(function ($record) {
+                        $nameParts = explode(' ', trim($record->name));
+                        $firstName = array_shift($nameParts);
+                        $lastName = array_pop($nameParts);
+                        $initial = (
+                            mb_substr($firstName, 0, 1) .
+                            mb_substr($lastName, 0, 1)
+                        );
+                        return "https://ui-avatars.com/api/?name=$initial&color=FFFFFF&background=09090b";
+                    })
                     ->circular(),
                 Tables\Columns\TextColumn::make('nik')
                     ->label('NIK'),
