@@ -21,7 +21,8 @@ class ListPoItems extends ListRecords
         return [
             Actions\Action::make('New import po item')
                 ->color('primary')
-                ->modalWidth('xl')
+                ->modalWidth('lg')
+                ->modalSubmitActionLabel('Import')
                 ->form(function (Forms\Form $form) {
                     return $form
                         ->schema([
