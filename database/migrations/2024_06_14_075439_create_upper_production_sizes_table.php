@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('sizerun_id');
             $table->dateTime('started_work_time')->nullable();
             $table->dateTime('ended_work_time')->nullable();
-            $table->date('delivery_to_stock')->nullable();
             $table->timestamps();
         });
     }

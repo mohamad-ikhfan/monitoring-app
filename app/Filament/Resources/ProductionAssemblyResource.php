@@ -20,7 +20,7 @@ class ProductionAssemblyResource extends Resource
 {
     protected static ?string $model = ProductionAssembly::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-check';
 
     protected static ?int $navigationSort = 5;
 

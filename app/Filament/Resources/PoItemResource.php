@@ -18,7 +18,7 @@ class PoItemResource extends Resource
 {
     protected static ?string $model = PoItem::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-table-cells';
 
     protected static ?int $sort = 1;
 
