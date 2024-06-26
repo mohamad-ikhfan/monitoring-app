@@ -46,5 +46,6 @@ class PoItemImportJob implements ShouldQueue
                 ->body($e->getMessage())
                 ->sendToDatabase($this->receipent);
         }
+        unlink($this->file);
     }
 }

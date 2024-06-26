@@ -20,8 +20,8 @@ class PoItemImport implements ToArray, WithCalculatedFormulas
     {
         foreach ($rows as $rowKey => $row) {
             if ($rowKey > 2 && !empty($row[0])) {
-                $isPoItem = PoItem::where('po_number', $row[0]);
-                if ($isPoItem->count() === 0) {
+                $poItem = PoItem::where('po_number', $row[0])->first();
+                if ($poItem === null) {
                     $sizerun = Sizerun::create([
                         'size_3t' => $row[5],
                         'size_4' => $row[6],
@@ -59,14 +59,14 @@ class PoItemImport implements ToArray, WithCalculatedFormulas
                         'sizerun_id' => $sizerun->id,
                     ]);
                 } else {
-                    $isPoItem->update([
+                    $poItem->update([
                         'model_name' => trim($row[1]),
                         'cgac' => Date::excelToDateTimeObject($row[2])->format('Y-m-d'),
                         'destination' => trim($row[3]),
                         'gender' => trim($row[4]),
                     ]);
 
-                    $isPoItem->first()->sizerun()->update([
+                    $poItem->sizerun()->update([
                         'size_3t' => $row[5],
                         'size_4' => $row[6],
                         'size_4t' => $row[7],

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PoItemResource\Pages;
 
 use App\Filament\Resources\PoItemResource;
+use App\Imports\PoItemImport;
 use App\Jobs\PoItemImportJob;
 use App\Models\User;
 use Filament\Actions;
@@ -36,9 +37,9 @@ class ListPoItems extends ListRecords
                         ]);
                 })
                 ->action(function (array $data) {
-                    //    $file=storage_path('app/public/'.$data['file_excel']);
+                    $file = storage_path('app/public/' . $data['file_excel']);
                     $receipent = User::find(auth()->user()->id);
-                    $file = storage_path('app/public/imports/import_po_items_(24-06-2024)_1719235821.xlsx');
+
                     PoItemImportJob::dispatch($receipent, $file);
 
                     Notifications\Notification::make()
