@@ -30,6 +30,40 @@ class ProductionOutsoleResource extends Resource
             ->schema([
                 Forms\Components\Section::make()
                     ->schema([
+                        Forms\Components\Fieldset::make('Working days')
+                            ->schema([
+                                Forms\Components\DatePicker::make('working_date')
+                                    ->native(false)
+                                    ->displayFormat('l, d-F-Y')
+                                    ->firstDayOfWeek(7)
+                                    ->locale('en')
+                                    ->closeOnDateSelection()
+                                    ->default(now())
+                                    ->required()
+                                    ->columnSpanFull(),
+
+                                Forms\Components\TimePicker::make('started_work_time')
+                                    ->native(false)
+                                    ->seconds(false)
+                                    ->displayFormat('h:i a')
+                                    ->locale('en')
+                                    ->closeOnDateSelection()
+                                    ->default(now()->createFromTime(06, 30, 00))
+                                    ->required(),
+
+                                Forms\Components\TimePicker::make('ended_work_time')
+                                    ->native(false)
+                                    ->seconds(false)
+                                    ->displayFormat('h:i a')
+                                    ->locale('en')
+                                    ->closeOnDateSelection()
+                                    ->default(now())
+                                    ->required(),
+                            ])
+                    ]),
+
+                Forms\Components\Section::make()
+                    ->schema([
                         Forms\Components\Fieldset::make('Spk Release')
                             ->schema([
                                 Forms\Components\Select::make('select_release')
@@ -78,112 +112,113 @@ class ProductionOutsoleResource extends Resource
                                     })
                                     ->live()
                                     ->disabledOn('edit'),
-
-                                Forms\Components\Grid::make(8)
-                                    ->schema([
-                                        Forms\Components\TextInput::make('spk.size_3t')
-                                            ->label('3T')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_4')
-                                            ->label('4')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_4t')
-                                            ->label('4T')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_5')
-                                            ->label('5')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_5t')
-                                            ->label('5T')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_6')
-                                            ->label('6')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_6t')
-                                            ->label('6T')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_7')
-                                            ->label('7')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_7t')
-                                            ->label('7T')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_8')
-                                            ->label('8')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_8t')
-                                            ->label('8T')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_9')
-                                            ->label('9')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_9t')
-                                            ->label('9T')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_10')
-                                            ->label('10')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_10t')
-                                            ->label('10T')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_11')
-                                            ->label('11')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_11t')
-                                            ->label('11T')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_12')
-                                            ->label('12')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_12t')
-                                            ->label('12T')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_13')
-                                            ->label('13')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_13t')
-                                            ->label('13T')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_14')
-                                            ->label('14')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_14t')
-                                            ->label('14T')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                        Forms\Components\TextInput::make('spk.size_15')
-                                            ->label('15')
-                                            ->readOnly()
-                                            ->hidden(fn ($state) => !isset($state)),
-                                    ])
-                                    ->hidden(fn ($state) => empty($state['select_release']))
                             ]),
                     ]),
 
                 Forms\Components\Section::make()
                     ->schema([
+                        Forms\Components\Fieldset::make('Sizerun On SPK')
+                            ->schema([
+                                Forms\Components\TextInput::make('spk.size_3t')
+                                    ->label('3T')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_4')
+                                    ->label('4')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_4t')
+                                    ->label('4T')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_5')
+                                    ->label('5')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_5t')
+                                    ->label('5T')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_6')
+                                    ->label('6')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_6t')
+                                    ->label('6T')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_7')
+                                    ->label('7')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_7t')
+                                    ->label('7T')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_8')
+                                    ->label('8')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_8t')
+                                    ->label('8T')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_9')
+                                    ->label('9')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_9t')
+                                    ->label('9T')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_10')
+                                    ->label('10')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_10t')
+                                    ->label('10T')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_11')
+                                    ->label('11')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_11t')
+                                    ->label('11T')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_12')
+                                    ->label('12')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_12t')
+                                    ->label('12T')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_13')
+                                    ->label('13')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_13t')
+                                    ->label('13T')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_14')
+                                    ->label('14')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_14t')
+                                    ->label('14T')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                                Forms\Components\TextInput::make('spk.size_15')
+                                    ->label('15')
+                                    ->readOnly()
+                                    ->hidden(fn ($state) => !isset($state)),
+                            ])
+                            ->columns(8)
+                            ->hidden(fn ($state) => empty($state['select_release'])),
+
                         Forms\Components\Fieldset::make('Input qty sizerun')
                             ->schema([
                                 Forms\Components\TextInput::make('input.size_3t')
@@ -492,7 +527,7 @@ class ProductionOutsoleResource extends Resource
                                     ->addable(false)
                                     ->columns(8)
                             ])
-                            ->columns(1)
+                            ->columns(1),
                     ])
                     ->hiddenOn('create'),
             ]);
