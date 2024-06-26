@@ -60,7 +60,7 @@ class ProductionOutsoleResource extends Resource
                                     ->default(now())
                                     ->required(),
                             ])
-                    ]),
+                    ])->hiddenOn('edit', 'view'),
 
                 Forms\Components\Section::make()
                     ->schema([
@@ -373,12 +373,44 @@ class ProductionOutsoleResource extends Resource
 
                 Forms\Components\Section::make()
                     ->schema([
-                        Forms\Components\Fieldset::make('Input qty sizerun')
+                        Forms\Components\Repeater::make('inputs')
+                            ->hiddenLabel()
                             ->schema([
-                                Forms\Components\Repeater::make('inputs')
-                                    ->hiddenLabel()
+                                Forms\Components\Hidden::make('id'),
+                                Forms\Components\Hidden::make('outsole_id'),
+                                Forms\Components\Fieldset::make('Working days')
                                     ->schema([
-                                        Forms\Components\Hidden::make('id'),
+                                        Forms\Components\DatePicker::make('working_date')
+                                            ->native(false)
+                                            ->displayFormat('l, d-F-Y')
+                                            ->firstDayOfWeek(7)
+                                            ->locale('en')
+                                            ->closeOnDateSelection()
+                                            ->default(now())
+                                            ->required()
+                                            ->columnSpanFull(),
+
+                                        Forms\Components\TimePicker::make('started_work_time')
+                                            ->native(false)
+                                            ->seconds(false)
+                                            ->displayFormat('h:i a')
+                                            ->locale('en')
+                                            ->closeOnDateSelection()
+                                            ->default(now()->createFromTime(06, 30, 00))
+                                            ->required(),
+
+                                        Forms\Components\TimePicker::make('ended_work_time')
+                                            ->native(false)
+                                            ->seconds(false)
+                                            ->displayFormat('h:i a')
+                                            ->locale('en')
+                                            ->closeOnDateSelection()
+                                            ->default(now())
+                                            ->required(),
+                                    ]),
+
+                                Forms\Components\Fieldset::make('Sizerun')
+                                    ->schema([
                                         Forms\Components\TextInput::make('size_3t')
                                             ->label('3T')
                                             ->minValue(0)
@@ -524,11 +556,11 @@ class ProductionOutsoleResource extends Resource
                                             ->numeric()
                                             ->hidden(fn ($state) => $state === null),
                                     ])
-                                    ->addable(false)
-                                    ->columns(8)
+                                    ->columns(6)
                             ])
-                            ->columns(1),
+                            ->addable(false)
                     ])
+                    ->columns(1)
                     ->hiddenOn('create'),
             ]);
     }
