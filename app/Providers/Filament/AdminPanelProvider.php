@@ -49,12 +49,6 @@ class AdminPanelProvider extends PanelProvider
                 'profile' => MenuItem::make()->url(fn (): string => EditProfile::getUrl())
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-            ->widgets([
-                ProductionResultChart::class,
-                HighestProductionTable::class,
-                TargetProductionTable::class,
-                ProductionMonitoringTable::class
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

@@ -14,8 +14,8 @@ class ProductionMonitoring extends Model
         'process_name' => 'string',
         'model_name' => 'string',
         'qty_prod' => 'float',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'started_work_time' => 'datetime',
+        'ended_work_time' => 'datetime',
     ];
 
     public function getRows()
@@ -24,39 +24,39 @@ class ProductionMonitoring extends Model
         $dataProductions = [];
         $ProdOutsoles = ProductionOutsole::all();
         foreach ($ProdOutsoles as $prodOutsole) {
-            foreach ($prodOutsole->outsoleSizeruns()->get() as $outsoleSizerun) {
+            foreach ($prodOutsole->outsoleSizeruns as $outsoleSizerun) {
                 array_push($dataProductions, [
                     'process_name' => 'OUTSOLE',
-                    'model_name' => $prodOutsole->spkRelease->spkReleasePoItems()->first()->poItem->model_name,
+                    'model_name' => $prodOutsole->model_name,
                     'qty_prod' => $outsoleSizerun->sizerun->qty_total,
-                    'created_at' => $outsoleSizerun->sizerun->created_at,
-                    'updated_at' => $outsoleSizerun->sizerun->updated_at,
+                    'started_work_time' => $outsoleSizerun->started_work_time,
+                    'ended_work_time' => $outsoleSizerun->ended_work_time,
                 ]);
             }
         }
 
         $ProdUppers = ProductionUpper::all();
         foreach ($ProdUppers as $prodUpper) {
-            foreach ($prodUpper->upperSizeruns()->get() as $outsoleSizerun) {
+            foreach ($prodUpper->upperSizeruns as $outsoleSizerun) {
                 array_push($dataProductions, [
                     'process_name' => 'UPPER',
-                    'model_name' => $prodUpper->spkRelease->spkReleasePoItems()->first()->poItem->model_name,
+                    'model_name' => $prodUpper->model_name,
                     'qty_prod' => $outsoleSizerun->sizerun->qty_total,
-                    'created_at' => $outsoleSizerun->sizerun->created_at,
-                    'updated_at' => $outsoleSizerun->sizerun->updated_at,
+                    'started_work_time' => $outsoleSizerun->started_work_time,
+                    'ended_work_time' => $outsoleSizerun->ended_work_time,
                 ]);
             }
         }
 
         $ProdAssemblies = ProductionAssembly::all();
         foreach ($ProdAssemblies as $prodAssembly) {
-            foreach ($prodAssembly->assemblySizeruns()->get() as $outsoleSizerun) {
+            foreach ($prodAssembly->assemblySizeruns as $outsoleSizerun) {
                 array_push($dataProductions, [
                     'process_name' => 'ASSEMBLY',
-                    'model_name' => $prodAssembly->spkRelease->spkReleasePoItems()->first()->poItem->model_name,
+                    'model_name' => $prodAssembly->model_name,
                     'qty_prod' => $outsoleSizerun->sizerun->qty_total,
-                    'created_at' => $outsoleSizerun->sizerun->created_at,
-                    'updated_at' => $outsoleSizerun->sizerun->updated_at,
+                    'started_work_time' => $outsoleSizerun->started_work_time,
+                    'ended_work_time' => $outsoleSizerun->ended_work_time,
                 ]);
             }
         }

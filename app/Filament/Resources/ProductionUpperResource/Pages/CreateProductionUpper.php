@@ -19,12 +19,24 @@ class CreateProductionUpper extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        $data['input']['qty_total'] = array_sum($data['input']);
+        $data['inputs']['qty_total'] = array_sum($data['inputs']);
 
-        $sizerun = Sizerun::create($data['input']);
+        $sizerun = Sizerun::create($data['inputs']);
 
-        return static::getModel()::first()->upperSizeruns()->create([
-            'sizerun_id' => $sizerun->id
+        $started_work_time = now()->parse($data['production_date'] . ' ' . $data['started_work_time'] . ':00');
+        $ended_work_time = now()->parse($data['production_date'] . ' ' . $data['ended_work_time'] . ':00');
+
+        $prodUpper = static::getModel()::create([
+            'spk_release_id' => $data['select_release'],
+            'model_name' => $data['select_model'],
         ]);
+
+        $prodUpper->upperSizeruns()->create([
+            'sizerun_id' => $sizerun->id,
+            'started_work_time' => $started_work_time,
+            'ended_work_time' => $ended_work_time
+        ]);
+
+        return $prodUpper;
     }
 }

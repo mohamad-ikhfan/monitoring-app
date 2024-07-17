@@ -32,7 +32,6 @@ class SpkReleaseResource extends Resource
                 Forms\Components\Section::make()
                     ->schema([
                         Forms\Components\Fieldset::make('SPK Schedule')
-                            ->columns(5)
                             ->schema([
                                 Forms\Components\DatePicker::make('release')
                                     ->native(false)
@@ -40,54 +39,39 @@ class SpkReleaseResource extends Resource
                                     ->firstDayOfWeek(7)
                                     ->locale('en')
                                     ->closeOnDateSelection()
-                                    ->required(),
+                                    ->required()
+                                    ->columnSpanFull(),
 
-                                Forms\Components\DatePicker::make('planning_start_outsole')
-                                    ->label('Start outsole')
-                                    ->native(false)
-                                    ->displayFormat('m/d Y')
-                                    ->firstDayOfWeek(7)
-                                    ->locale('en')
-                                    ->closeOnDateSelection()
-                                    ->required(),
+                                Forms\Components\Fieldset::make('Planning start production')
+                                    ->schema([
+                                        Forms\Components\DatePicker::make('planning_start_outsole')
+                                            ->native(false)
+                                            ->displayFormat('m/d Y')
+                                            ->firstDayOfWeek(7)
+                                            ->locale('en')
+                                            ->closeOnDateSelection()
+                                            ->required(),
 
-                                Forms\Components\DatePicker::make('planning_start_upper')
-                                    ->label('Start upper')
-                                    ->native(false)
-                                    ->displayFormat('m/d Y')
-                                    ->firstDayOfWeek(7)
-                                    ->locale('en')
-                                    ->closeOnDateSelection()
-                                    ->required(),
+                                        Forms\Components\DatePicker::make('planning_start_upper')
+                                            ->native(false)
+                                            ->displayFormat('m/d Y')
+                                            ->firstDayOfWeek(7)
+                                            ->locale('en')
+                                            ->closeOnDateSelection()
+                                            ->required(),
 
-                                Forms\Components\DatePicker::make('planning_start_assembly')
-                                    ->label('Start assembly')
-                                    ->native(false)
-                                    ->displayFormat('m/d Y')
-                                    ->firstDayOfWeek(7)
-                                    ->locale('en')
-                                    ->closeOnDateSelection()
-                                    ->required(),
-
-                                Forms\Components\DatePicker::make('planning_finished_assembly')
-                                    ->label('Finish assembly')
-                                    ->native(false)
-                                    ->displayFormat('m/d Y')
-                                    ->firstDayOfWeek(7)
-                                    ->locale('en')
-                                    ->closeOnDateSelection()
-                                    ->required(),
+                                        Forms\Components\DatePicker::make('planning_start_assembly')
+                                            ->native(false)
+                                            ->displayFormat('m/d Y')
+                                            ->firstDayOfWeek(7)
+                                            ->locale('en')
+                                            ->closeOnDateSelection()
+                                            ->required(),
+                                    ]),
                             ]),
-                    ]),
-                Forms\Components\Section::make()
-                    ->schema([
-                        Forms\Components\Fieldset::make('Selected PO Items')
-                            ->columns(1)
-                            ->schema([
-                                Forms\Components\TextInput::make('qty_total')
-                                    ->readOnly()
-                                    ->default(0),
 
+                        Forms\Components\Fieldset::make('Selected PO Items')
+                            ->schema([
                                 Forms\Components\Select::make('po_items')
                                     ->options(function (PoItem $poItem, array $state): array {
                                         $options = [];
@@ -188,16 +172,34 @@ class SpkReleaseResource extends Resource
                                     ->multiple()
                                     ->required()
                                     ->afterStateUpdated(function (Forms\Set $set, $state) {
-                                        $qty = 0;
+                                        $total_collect = collect();
+
                                         $poItems = PoItem::whereIn('id', $state)->get();
                                         foreach ($poItems as $value) {
-                                            $qty += $value->sizerun->qty_total;
+                                            $total_collect->push(['model' => $value->model_name, 'qty' => $value->sizerun->qty_total]);
                                         }
-                                        $set('qty_total', number_format($qty));
+
+                                        $total_quantities = [];
+                                        foreach ($total_collect->groupBy('model') as $key => $value) {
+                                            array_push($total_quantities, ['model' => $key, 'qty' => number_format($total_collect->where('model', $key)->sum('qty'))]);
+                                        }
+                                        $set('total_quantities', $total_quantities);
                                     })
                                     ->live(),
+
+                                Forms\Components\Repeater::make('total_quantities')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('model')
+                                            ->readOnly(),
+                                        Forms\Components\TextInput::make('qty')
+                                            ->readOnly()
+                                            ->default(0),
+                                    ])
+                                    ->orderable(false)
+                                    ->addable(false)
+                                    ->deletable(false)
                             ])
-                    ])
+                    ]),
             ]);
     }
 
@@ -221,9 +223,6 @@ class SpkReleaseResource extends Resource
                     ->date('d-F-Y'),
 
                 Tables\Columns\TextColumn::make('planning_start_assembly')
-                    ->date('d-F-Y'),
-
-                Tables\Columns\TextColumn::make('planning_finished_assembly')
                     ->date('d-F-Y'),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.po_number')
@@ -254,150 +253,125 @@ class SpkReleaseResource extends Resource
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.qty_total')
                     ->label('Qty Total')
                     ->numeric()
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_3t')
                     ->label('3T')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_4')
                     ->label('4')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_4t')
                     ->label('4T')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_5')
                     ->label('5')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_5t')
                     ->label('5T')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_6')
                     ->label('6')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_6t')
                     ->label('6T')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_7')
                     ->label('7')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_7t')
                     ->label('7T')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_8')
                     ->label('8')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_8t')
                     ->label('8T')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_9')
                     ->label('9')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_9t')
                     ->label('9T')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_10')
                     ->label('10')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_10t')
                     ->label('10T')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_11')
                     ->label('11')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_11t')
                     ->label('11T')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_12')
                     ->label('12')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_12t')
                     ->label('12T')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_13')
                     ->label('13')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_13t')
                     ->label('13T')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_14')
                     ->label('14')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_14t')
                     ->label('14T')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks(),
 
                 Tables\Columns\TextColumn::make('spkReleasePoItems.poItem.sizerun.size_15')
                     ->label('15')
-                    ->summarize(Tables\Columns\Summarizers\Sum::make())
                     ->numeric()
                     ->listWithLineBreaks()
             ])

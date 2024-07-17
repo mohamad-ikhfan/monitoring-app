@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('production_outsole_id');
             $table->foreignId('sizerun_id');
-            $table->dateTime('started_work_time')->nullable();
-            $table->dateTime('ended_work_time')->nullable();
+            $table->dateTime('started_work_time');
+            $table->dateTime('ended_work_time');
             $table->timestamps();
         });
     }

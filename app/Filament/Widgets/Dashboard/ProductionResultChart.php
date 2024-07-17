@@ -2,7 +2,11 @@
 
 namespace App\Filament\Widgets\Dashboard;
 
+use App\Models\ProductionAssembly;
+use App\Models\ProductionOutsole;
 use App\Models\ProductionResult;
+use App\Models\ProductionUpper;
+use App\Models\StockUpperOutsoleByModel;
 use Filament\Widgets\ChartWidget;
 
 class ProductionResultChart extends ChartWidget
@@ -18,11 +22,30 @@ class ProductionResultChart extends ChartWidget
         $data_uppers = [];
         $data_assemblies = [];
 
-        foreach (ProductionResult::all() as $value) {
-            $model_names[] = $value->model_name;
-            $data_outsoles[] = $value->outsole_qty_total;
-            $data_uppers[] = $value->upper_qty_total;
-            $data_assemblies[] = $value->assembly_qty_total;
+        $stockUpperOutsoleByModels = StockUpperOutsoleByModel::all()->pluck('model_name')->toArray();
+
+        foreach (array_unique($stockUpperOutsoleByModels) as $modelName) {
+            $model_names[] = $modelName;
+            $productionOutsoles = ProductionOutsole::where('model_name', $modelName)->get();
+            foreach ($productionOutsoles as $productionOutsole) {
+                foreach ($productionOutsole->outsoleSizeruns->map(fn ($v) => $v->sizerun) as $outsoleSizerun) {
+                    $data_outsoles[] = intval($outsoleSizerun->qty_total);
+                }
+            }
+
+            $productionUppers = ProductionUpper::where('model_name', $modelName)->get();
+            foreach ($productionUppers as $productionUpper) {
+                foreach ($productionUpper->upperSizeruns->map(fn ($v) => $v->sizerun) as $upperSizerun) {
+                    $data_uppers[] = intval($upperSizerun->qty_total);
+                }
+            }
+
+            $productionAssemblies = ProductionAssembly::where('model_name', $modelName)->get();
+            foreach ($productionAssemblies as $productionAssembly) {
+                foreach ($productionAssembly->assemblySizeruns->map(fn ($v) => $v->sizerun) as $assemblySizerun) {
+                    $data_assemblies[] = intval($assemblySizerun->qty_total);
+                }
+            }
         }
 
         return [

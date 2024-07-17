@@ -13,9 +13,7 @@ return new class extends Migration
     {
         Schema::create('production_assemblies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('spk_release_id');
-            $table->integer('target_days');
-            $table->double('target_qty_perday');
+            $table->string('model_name');
             $table->timestamps();
         });
     }

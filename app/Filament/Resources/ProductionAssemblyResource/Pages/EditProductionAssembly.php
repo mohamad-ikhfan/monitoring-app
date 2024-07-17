@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\ProductionAssemblyResource\Pages;
 
 use App\Filament\Resources\ProductionAssemblyResource;
+use App\Models\ProductionAssembly;
 use App\Models\Sizerun;
+use App\Models\StockUpperOutsoleByModel;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,34 +24,50 @@ class EditProductionAssembly extends EditRecord
 
         $prod = $this->getModel()::first();
 
-        $data['select_release'] = $prod->spkRelease->id;
+        $data['production_date'] = $prod->assemblySizeruns->first()->started_work_time;
+        $data['started_work_time'] = $prod->assemblySizeruns->first()->started_work_time;
+        $data['ended_work_time'] = $prod->assemblySizeruns->first()->ended_work_time;
+        $data['select_model'] = $prod->model_name;
 
-        foreach ($prod->spkRelease->spkReleasePoItems()->get() as $spk) {
-            $sizerun = array_slice($spk->poItem->sizerun->toArray(), 1, 24);
-            foreach ($sizerun as $key => $value) {
-                if (!empty($value)) {
-                    if (isset($array_spk[$key])) {
-                        $array_spk[$key] += intval($value);
-                    } else {
-                        $array_spk[$key] = intval($value);
+        $stockUpperOutsoles = StockUpperOutsoleByModel::where('model_name', $prod->model_name)->get();
+
+        foreach ($stockUpperOutsoles as $stockUpperOutsole) {
+            if ($stockUpperOutsole->model_name == $prod->model_name) {
+                foreach ($stockUpperOutsole->toArray() as $size => $qty) {
+                    if ($qty != null && $size != 'id' && $size != 'model_name') {
+                        if (isset($data['sizerun'][$size])) {
+                            $data['sizerun'][$size] += intval($qty);
+                        } else {
+                            $data['sizerun'][$size] = intval($qty);
+                        }
                     }
                 }
             }
         }
 
-        if (isset($array_spk)) {
-            foreach ($prod->assemblySizeruns()->get() as $assembly) {
-                $data['inputs'][] = $assembly->sizerun->toArray();
+        foreach ($prod->assemblySizeruns as $assembly) {
+            $data['inputs'] = array_slice($assembly->sizerun->toArray(), 1, 24);
+        }
 
-                foreach (array_slice($assembly->sizerun->toArray(), 1, 24) as $key => $value) {
-                    if (!empty($value)) {
-                        $array_spk[$key] -= intval($value);
+        $assemblyByModels = ProductionAssembly::where('model_name', $prod->model_name)->get();
+        $allProductions = [];
+        foreach ($assemblyByModels as $assemblyByReleaseModel) {
+            foreach ($assemblyByReleaseModel->assemblySizeruns->map(fn ($v) => $v->sizerun) as  $allSizerun) {
+                foreach (array_slice($allSizerun->toArray(), 1, 24) as $size => $qty) {
+                    if ($qty != null) {
+                        if (isset($allProductions[$size])) {
+                            $allProductions[$size] += intval($qty);
+                        } else {
+                            $allProductions[$size] = intval($qty);
+                        }
                     }
                 }
             }
+        }
 
-            foreach ($array_spk as $key => $value) {
-                $data['spk'][$key] = $value;
+        foreach ($allProductions as $size => $qty) {
+            if (isset($data['sizerun'][$size])) {
+                $data['sizerun'][$size] -= intval($qty);
             }
         }
 
@@ -58,25 +76,18 @@ class EditProductionAssembly extends EditRecord
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        $model = $record->first()->assemblySizeruns();
-        if ($model->get()->count() == count($data['inputs'])) {
-            foreach ($data['inputs'] as $input) {
-                $sizerun_input = array_slice($input, 1, 24);
-                $sizerun = Sizerun::find($input['id']);
-                $sizerun->update($sizerun_input);
-            }
-        } else {
-            $sizerun_id = [];
-            foreach ($data['inputs'] as $input) {
-                array_push($sizerun_id, $input['id']);
-            }
+        $data['inputs']['qty_total'] = array_sum($data['inputs']);
 
-            foreach ($model
-                ->whereNotIn('sizerun_id', $sizerun_id)
-                ->get() as $assembly) {
-                $sizerun = Sizerun::find($assembly->sizerun_id);
-                $sizerun->delete();
-            }
+        $started_work_time = now()->parse($data['production_date'] . ' ' . $data['started_work_time'] . ':00');
+        $ended_work_time = now()->parse($data['production_date'] . ' ' . $data['ended_work_time'] . ':00');
+
+        foreach ($record->outsoleSizeruns as $outsoleSizerun) {
+            $outsoleSizerun->sizerun->update($data['inputs']);
+
+            $outsoleSizerun->update([
+                'started_work_time' => $started_work_time,
+                'ended_work_time' => $ended_work_time
+            ]);
         }
 
         return $record;

@@ -57,7 +57,7 @@ class HighestProductionTable extends BaseWidget
 
                 ProgressColumn::make('status_production_global')
                     ->label('Status Production Global')
-                    ->progress(fn ($record) => round($record->status_production_global / $record->spk_total_order * 100)),
+                    ->progress(fn ($record) => round(($record->outsole_qty_total + $record->upper_qty_total + $record->assembly_qty_total) / ($record->spk_total_order * 3) * 100)),
             ]);
     }
 }

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->date('planning_start_outsole');
             $table->date('planning_start_upper');
             $table->date('planning_start_assembly');
-            $table->date('planning_finished_assembly');
             $table->timestamps();
         });
     }
