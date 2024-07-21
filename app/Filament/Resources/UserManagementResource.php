@@ -19,7 +19,7 @@ class UserManagementResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
-    protected static ?string $navigationLabel = 'User Managements';
+    protected static ?string $navigationGroup = 'User Managements';
 
     protected static ?int $navigationSort = 6;
 
@@ -45,9 +45,12 @@ class UserManagementResource extends Resource
                         Forms\Components\Hidden::make('password')
                             ->hiddenOn('edit'),
 
-                        Forms\Components\Select::make('role')
-                            ->options(['admin' => 'Admin', 'monitorig' => 'Monitoring', 'spk' => 'SPK', 'outsole' => 'Outsole', 'upper' => 'Upper', 'assembly' => 'Assembly'])
-                            ->required()
+                        Forms\Components\Select::make('roles')
+                            ->relationship(name: 'roles', titleAttribute: 'name')
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->columnSpanFull(),
                     ])
 
             ]);
@@ -70,9 +73,17 @@ class UserManagementResource extends Resource
                     })
                     ->circular(),
                 Tables\Columns\TextColumn::make('nik')
-                    ->label('NIK'),
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('role'),
+                    ->label('NIK')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('roles')
+                    ->formatStateUsing(fn ($state) => $state->name)
+                    ->listWithLineBreaks(),
             ])
             ->filters([
                 //
