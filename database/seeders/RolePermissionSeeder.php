@@ -47,6 +47,14 @@ class RolePermissionSeeder extends Seeder
             'restore spkRelease',
             'force-delete spkRelease',
 
+            'view-any targetPerModel',
+            'view targetPerModel',
+            'create targetPerModel',
+            'update targetPerModel',
+            'delete targetPerModel',
+            'restore targetPerModel',
+            'force-delete targetPerModel',
+
             'view-any productionOutsole',
             'view productionOutsole',
             'create productionOutsole',
@@ -138,6 +146,14 @@ class RolePermissionSeeder extends Seeder
                     'delete spkRelease',
                     'restore spkRelease',
                     'force-delete spkRelease',
+
+                    'view-any targetPerModel',
+                    'view targetPerModel',
+                    'create targetPerModel',
+                    'update targetPerModel',
+                    'delete targetPerModel',
+                    'restore targetPerModel',
+                    'force-delete targetPerModel',
                 ])->get());
             }
 
