@@ -15,12 +15,13 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RolePermissionSeeder::class);
 
-        $user = User::create([
-            'name' => 'Developer',
-            'nik' => 'dev',
-            'password' => bcrypt('dev')
-        ]);
-
-        $user->assignRole('dev');
+        if (User::where('nik', 'dev')->count() == 0) {
+            $user = User::create([
+                'name' => 'Developer',
+                'nik' => 'dev',
+                'password' => bcrypt('dev')
+            ]);
+            $user->assignRole('dev');
+        }
     }
 }

@@ -104,6 +104,81 @@ class RolePermissionSeeder extends Seeder
             if ($dataRole == 'dev') {
                 $role->givePermissionTo(Permission::all());
             }
+
+            if ($dataRole == 'admin') {
+                $role->givePermissionTo(Permission::whereIn('name', [
+                    'view-any role',
+                    'view role',
+                    'create  role',
+                    'update role',
+                    'delete role',
+                    'restore role',
+                    'force-delete role',
+
+                    'view-any user',
+                    'view user',
+                    'create  user',
+                    'update user',
+                    'delete user',
+                    'restore user',
+                    'force-delete user',
+                ])->get());
+            }
+
+            if ($dataRole == 'dev') {
+                $role->givePermissionTo(Permission::all());
+            }
+
+            if ($dataRole == 'spk') {
+                $role->givePermissionTo(Permission::whereIn('name', [
+                    'view-any spkRelease',
+                    'view spkRelease',
+                    'create spkRelease',
+                    'update spkRelease',
+                    'delete spkRelease',
+                    'restore spkRelease',
+                    'force-delete spkRelease',
+                ])->get());
+            }
+
+            if ($dataRole == 'spk') {
+                $role->givePermissionTo(Permission::whereIn('name', [
+                    'view-any spkRelease',
+                    'view spkRelease',
+                    'create spkRelease',
+                    'update spkRelease',
+                    'delete spkRelease',
+                    'restore spkRelease',
+                    'force-delete spkRelease',
+                ])->get());
+            }
+
+            if ($dataRole == 'outsole') {
+                $role->givePermissionTo(Permission::whereIn('name', [
+                    'view-any productionOutsole',
+                    'view productionOutsole',
+                    'create productionOutsole',
+                    'update productionOutsole',
+                ])->get());
+            }
+
+            if ($dataRole == 'upper') {
+                $role->givePermissionTo(Permission::whereIn('name', [
+                    'view-any productionUpper',
+                    'view productionUpper',
+                    'create productionUpper',
+                    'update productionUpper',
+                ])->get());
+            }
+
+            if ($dataRole == 'assembly') {
+                $role->givePermissionTo(Permission::whereIn('name', [
+                    'view-any productionAssembly',
+                    'view productionAssembly',
+                    'create productionAssembly',
+                    'update productionAssembly',
+                ])->get());
+            }
         }
     }
 }
