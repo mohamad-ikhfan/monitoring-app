@@ -31,7 +31,7 @@ class TargetPerModelResource extends Resource
                             ->required()
                             ->unique(ignoreRecord: true),
 
-                        Forms\Components\TextInput::make('target_perday')
+                        Forms\Components\TextInput::make('target_per_day')
                             ->required()
                             ->numeric()
                     ])
@@ -46,7 +46,8 @@ class TargetPerModelResource extends Resource
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('target_perday')
+                Tables\Columns\TextColumn::make('target_per_day')
+                    ->numeric()
                     ->sortable()
                     ->searchable(),
             ])

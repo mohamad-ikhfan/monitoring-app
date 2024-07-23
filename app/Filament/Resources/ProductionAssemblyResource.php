@@ -8,6 +8,7 @@ use App\Models\PoItem;
 use App\Models\ProductionAssembly;
 use App\Models\SpkReleasePoItem;
 use App\Models\StockUpperOutsoleByModel;
+use App\Models\TargetPerModel;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -69,7 +70,6 @@ class ProductionAssemblyResource extends Resource
                             ->schema([
                                 Forms\Components\Select::make('select_model')
                                     ->options(StockUpperOutsoleByModel::all()->pluck('model_name', 'model_name'))
-                                    ->columnSpanFull()
                                     ->required()
                                     ->afterStateUpdated(function (Forms\Set $set, $state) {
                                         $set("sizerun", null);
@@ -79,6 +79,7 @@ class ProductionAssemblyResource extends Resource
                                             ->get();
 
                                         $stokUpperOutsoles = StockUpperOutsoleByModel::where('model_name', $state)->get();
+                                        $target = TargetPerModel::where('model_name', $state)->first();
 
                                         foreach ($stokUpperOutsoles as $stockUpperOutsole) {
                                             if ($state == $stockUpperOutsole->model_name) {
@@ -106,13 +107,23 @@ class ProductionAssemblyResource extends Resource
                                                 }
                                             }
 
+
+                                            if ($target) {
+                                                $set('target_per_day', $target->target_per_day);
+                                            } else {
+                                                $set('target_per_day', 0);
+                                            }
+
                                             foreach ($stockSizes as $size => $qty) {
                                                 $set("sizerun.$size", $qty);
                                             }
                                         }
                                     })
                                     ->live()
-                                    ->disabledOn('edit')
+                                    ->disabledOn('edit'),
+
+                                Forms\Components\TextInput::make('target_per_day')
+                                    ->readOnly()
                             ]),
 
                         Forms\Components\Section::make()

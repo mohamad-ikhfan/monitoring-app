@@ -8,6 +8,7 @@ use App\Models\PoItem;
 use App\Models\ProductionUpper;
 use App\Models\SpkRelease;
 use App\Models\SpkReleasePoItem;
+use App\Models\TargetPerModel;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -87,14 +88,14 @@ class ProductionUpperResource extends Resource
                                         $release = SpkRelease::find($releaseId);
 
                                         $options = [];
-                                        foreach ($release->spkReleasePoItems as $value) {
-                                            $options[$value->poItem->model_name] = $value->poItem->model_name;
+                                        if ($release) {
+                                            foreach ($release->spkReleasePoItems as $value) {
+                                                $options[$value->poItem->model_name] = $value->poItem->model_name;
+                                            }
                                         }
                                         return array_unique($options);
                                     })
-                                    ->columnSpanFull()
                                     ->required()
-                                    ->hidden(fn (Forms\Get $get) => empty($get('select_release')))
                                     ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, $state) {
                                         $set("spk", null);
                                         $set("input", null);
@@ -105,41 +106,53 @@ class ProductionUpperResource extends Resource
                                         $prodUppers = ProductionUpper::where('spk_release_id', $releaseId)
                                             ->where('model_name', $state)
                                             ->get();
+                                        $target = TargetPerModel::where('model_name', $state)->first();
 
-                                        foreach ($release->spkReleasePoItems as $spk) {
-                                            if ($state == $spk->poItem->model_name) {
-                                                $sizerun = array_slice($spk->poItem->sizerun->toArray(), 1, 24);
-                                                foreach ($sizerun as $key => $value) {
-                                                    if (!empty($value)) {
-                                                        if (isset($array_spk[$key])) {
-                                                            $array_spk[$key] += intval($value);
-                                                        } else {
-                                                            $array_spk[$key] = intval($value);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        if (isset($array_spk)) {
-                                            foreach ($prodUppers as $prodOutsole) {
-                                                foreach ($prodOutsole->upperSizeruns as $outsole) {
-                                                    $sizerun_outsole = array_slice($outsole->sizerun->toArray(), 1, 24);
-                                                    foreach ($sizerun_outsole as $key => $value) {
+                                        if ($release) {
+                                            foreach ($release->spkReleasePoItems as $spk) {
+                                                if ($state == $spk->poItem->model_name) {
+                                                    $sizerun = array_slice($spk->poItem->sizerun->toArray(), 1, 24);
+                                                    foreach ($sizerun as $key => $value) {
                                                         if (!empty($value)) {
-                                                            $array_spk[$key] -= intval($value);
+                                                            if (isset($array_spk[$key])) {
+                                                                $array_spk[$key] += intval($value);
+                                                            } else {
+                                                                $array_spk[$key] = intval($value);
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
 
-                                            foreach ($array_spk as $key => $value) {
-                                                $set("spk.$key", $value);
+                                            if (isset($array_spk)) {
+                                                foreach ($prodUppers as $prodOutsole) {
+                                                    foreach ($prodOutsole->upperSizeruns as $outsole) {
+                                                        $sizerun_outsole = array_slice($outsole->sizerun->toArray(), 1, 24);
+                                                        foreach ($sizerun_outsole as $key => $value) {
+                                                            if (!empty($value)) {
+                                                                $array_spk[$key] -= intval($value);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                if ($target) {
+                                                    $set('target_per_day', $target->target_per_day);
+                                                } else {
+                                                    $set('target_per_day', 0);
+                                                }
+
+                                                foreach ($array_spk as $key => $value) {
+                                                    $set("spk.$key", $value);
+                                                }
                                             }
                                         }
                                     })
                                     ->live()
-                                    ->disabledOn('edit')
+                                    ->disabledOn('edit'),
+
+                                Forms\Components\TextInput::make('target_per_day')
+                                    ->readOnly()
                             ]),
                     ]),
 
